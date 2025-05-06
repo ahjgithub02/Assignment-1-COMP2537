@@ -23,7 +23,6 @@ const client = new MongoClient(mongoURI, {
 
 async function start() {
     try {
-
         await client.connect();
         app.use(session({
             secret: process.env.NODE_SESSION_SECRET,
@@ -81,7 +80,7 @@ async function start() {
 
             } catch (err) {
                 console.error(err);
-                res.status(500).send("Server error");
+                res.status(500).send("Email already taken.");
             }
         });
 
@@ -105,14 +104,14 @@ async function start() {
                 const { email, password } = value;
                 const user = await client.db().collection('users').findOne({ email });
                 if (!user || !(await bcrypt.compare(password, user.password))) {
-                    return res.send('<p>Invalid password</p><a href="/login">Try again</a>');
+                    return res.send('<p>Invalid email/password combination</p><a href="/login">Try again</a>');
                 }
 
                 req.session.name = user.name;
                 res.redirect('/members');
             } catch (err) {
                 console.error(err);
-                res.status(500).send("Server error");
+                res.status(500).send("Error 404");
             }
         });
 
